@@ -1,2 +1,2 @@
 # lekhana
-amdocc_project
+amdocs_project

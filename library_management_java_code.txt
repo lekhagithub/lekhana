@@ -1,0 +1,241 @@
+/////User Package///////
+package data;
+
+
+//////import package//////
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Scanner;
+
+////Create Class/////
+
+public class Main {
+	
+	 static Connection getConnection(String url, String uname, String pass) throws SQLException, java.sql.SQLException{ 
+		 Connection con=DriverManager.getConnection (url,uname,pass);
+	      return con;
+	 }
+	private static Connection con = null;
+	private static   Statement  statement = null;
+	
+	public static void main(String[] args) throws Exception{
+		 	
+			Main obj1= new Main();
+			String url = "jdbc:mysql://localhost:3306/library";
+			String uname ="root";
+			String pass = "lekhana";
+		 try
+		 {
+		   con = Main.getConnection(url, uname, pass);
+	
+	       System.out.println("Welcome to the Library");
+	       System.out.println("Enter login Credentials");
+	       Scanner sr= new Scanner(System.in);
+	       System.out.print("  Enter user name:  ");
+           String userName = sr.nextLine();
+
+           System.out.print("  Enter password:  ");
+           String password = sr.nextLine();
+
+           if ("sindhu".equals(userName) && "pass123".equals(password)) {
+               System.out.println(" User successfully logged-in.. ");
+		       System.out.println("Enter your choice from 1-6: \n 1.Add book \n 2.Delete book \n 3.Update Book \n 4.Search Book\n 5.Issue Book \n 6.Exit");
+		       
+		       int sel = sr.nextInt();
+		       switch(sel)
+		       {
+		       case 1: obj1.add();
+		               break;
+		       case 2: obj1.delete();
+	                   break;
+		       case 3: obj1.update();
+	                   break;
+		       case 4: obj1.search();
+	                   break;
+		       case 5: obj1.issue();
+	                   break;
+		       case 6:System.out.println("exit");
+		               break;
+		       default:System.out.println("invalid choice");
+		       }
+           } 
+           else {
+               System.out.println(" In valid userName or password ");
+           } 
+	       
+		 }
+	       
+		 
+		 catch(SQLException ex)
+		   {
+			  
+			ex.printStackTrace();
+		   }
+		}
+
+	
+	
+	
+//////////////////   ADD BOOK  /////////////////////////
+
+	private static void add() throws Exception
+	 {
+		Scanner sr= new Scanner(System.in);
+	    String sql ="insert into book(Book_ID,Book_Name,Book_author,Book_quantity) values (?,?,?,?)";
+		PreparedStatement  ps= con.prepareStatement(sql);
+	    System.out.println("Enter book number");
+	    ps.setInt(1,sr.nextInt());
+	    System.out.println("Enter book name");
+	    ps.setString(2,sr.next());
+	    System.out.println("Enter author name");
+	    ps.setString(3,sr.next());
+	    System.out.println("Enter book quantity");
+	    ps.setInt(4,sr.nextInt());
+	    
+	    int rows =ps.executeUpdate();
+	    if(rows>0)
+	    {
+	      System.out.println("record intered successfully");
+	    }
+	 }
+
+	
+///	////////////////////////   DELETE        //////////////////////	
+	       
+	       
+		  private void delete() throws SQLException  {
+			   String sql = "delete from book where Book_ID = ?";
+			   PreparedStatement ps = con.prepareStatement(sql);
+			   System.out.println("Enter book number to delete");
+			   Scanner sr= new Scanner(System.in);
+			   ps.setInt(1,sr.nextInt());  
+			        
+			        int numberOfRow = ps.executeUpdate();
+			        if(numberOfRow > 0)
+			        {
+			            System.out.println(numberOfRow + " delete is success");
+			        }
+			        else
+			        {
+			            System.out.println(numberOfRow + " delete unsuccessfull");
+			        }
+			    }
+			
+	
+
+////////////////////  UPDATE ///////////////////////////
+
+
+			
+			private static void update() throws SQLException
+			{
+				String sql = "UPDATE book set Book_quantity=? WHERE Book_ID=?";
+				PreparedStatement ps = con.prepareStatement(sql);
+			    Scanner se=new Scanner(System.in);
+			    System.out.println("Enter book number to update");
+			    int Book_ID=se.nextInt();
+			    System.out.println("Enter a new quantity");
+				int Book_quantity= se.nextInt();
+				
+				ps.setInt(1,Book_quantity);
+				ps.setInt(2,Book_ID);
+				
+				int numberOfRow = ps.executeUpdate();
+				
+				System.out.println(numberOfRow + " row is updated..");
+
+				
+			}
+
+			
+
+
+ /////////////////////////  SEARCH BOOK ////////////////////////////
+			private static void search() throws SQLException
+			{
+				        //query
+				      String sql = "SELECT * FROM book WHERE Book_Name=?";
+			           PreparedStatement ps = con.prepareStatement(sql);
+			           
+			           //input
+			           Scanner se= new Scanner(System.in);
+			            System.out.print("Enter book name: ");
+			             ps.setString(1, se.next());
+			             ResultSet rs = ps.executeQuery();
+			             if(rs.next())
+			             {
+			            	 System.out.println("Book_ID= "+ rs.getInt(1));
+			            	 System.out.println("Book_Name= "+ rs.getString(2));
+			            	 System.out.println("Book_author= "+rs.getString(3));
+			            	 System.out.println("Book_quantity= "+ rs.getInt(4));
+			            	 
+			             }
+			             else
+			             {
+			            	 System.out.println("Book not avaliable");
+			             }  
+			}
+		
+////////////////       ISSUE BOOK           //////////////////////		
+		                   
+private void issue() throws SQLException 
+{
+	Scanner sc=new Scanner(System.in);
+	
+	System.out.println("Enter Book_ID to check availability");
+	int av=sc.nextInt();
+	String sql1 ="select Book_quantity from book where Book_ID=?";
+	PreparedStatement ps2 = con.prepareStatement(sql1);
+	ps2.setInt(1,av);
+    ResultSet rs =ps2.executeQuery();
+    if(rs.next())
+    {
+    
+		  int quant=rs.getInt("Book_quantity");
+		  boolean bd= quant>0;
+		  System.out.println(bd);
+		  int flag=1;
+		  while(bd && flag!=0)
+		  {
+
+             System.out.println("Book is ailable");
+             flag=0;
+             System.out.println("---------Details to Issue--------- ");
+             System.out.println("Enter User_ID: ");
+             int user=sc.nextInt();
+             System.out.println("Enter Book_ID: ");
+             int book=sc.nextInt();
+             System.out.println("Enter issue_date: (YYYY-MM-DD)");
+             String idate=sc.next();
+      	
+           // ISSUE BOOK QUERY
+             String q1="Insert into issue(User_ID,Book_ID,Issue_Date) values(?,?,?)";
+
+             PreparedStatement p1=con.prepareStatement(q1);
+             p1.setInt(1, user);
+             p1.setInt(2, book);
+             p1.setString(3, idate);
+
+            // UPDATE BOOK QUERY
+             String q2="Update book set quantity=quantity-1 where Book_ID=?";
+             PreparedStatement p2=con.prepareStatement(q2);
+             p2.setInt(1, book);
+             p1.executeUpdate();
+             	p2.executeUpdate();
+
+             	System.out.println("********Book Issued Successfully********");
+		  	}
+    	}
+    //book not found in library
+    else
+    {
+    	System.out.println("Book is not avaliable");
+    }
+}
+}
+    

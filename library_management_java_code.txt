@@ -225,7 +225,6 @@ private void issue() throws SQLException
              String q2="Update book set Book_quantity=Book_quantity-1 where Book_ID=?";
              PreparedStatement p2=con.prepareStatement(q2);
              p2.setInt(1, book);
-             p1.executeUpdate();
              	p2.executeUpdate();
 
              	System.out.println("********Book Issued Successfully********");

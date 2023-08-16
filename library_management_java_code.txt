@@ -226,7 +226,7 @@ private void issue() throws SQLException
              PreparedStatement p2=con.prepareStatement(q2);
              p2.setInt(1, book);
              	p2.executeUpdate();
-
+                p1.executeUpdate();
              	System.out.println("********Book Issued Successfully********");
 		  	}
     	}
